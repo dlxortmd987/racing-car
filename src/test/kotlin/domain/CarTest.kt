@@ -1,31 +1,26 @@
 package domain
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.shouldBeTypeOf
 
 internal class CarTest : BehaviorSpec({
 
-    val sut = Car("test")
+    Given("from") {
 
-    given("car") {
-        `when`("4 미만의 숫자를 넣으면") {
-            val originPosition = sut.getPosition()
-            sut.decide(3)
-            then("position이 바뀌지 않는다.") {
-                sut.getPosition() shouldBe originPosition
+        When("5자 이하의 문자열이 주어졌을 때,") {
+            val name = "name1"
+            val actual = Car.from(name)
+            Then("자동차가 반환된다.") {
+                actual.shouldBeTypeOf<Car>()
             }
         }
 
-        `when`("4 이상의 숫자를 넣으면") {
-            val originPosition = sut.getPosition()
-            sut.decide(5)
-            then("position이 바뀐다.") {
-                sut.getPosition() shouldNotBe originPosition
+        When("5자 이상의 문자열이 주어졌을 때,") {
+            val name = "name11"
+            Then("IllegalArgumentException 이 발생한다.") {
+                shouldThrow<IllegalArgumentException> { Car.from(name) }
             }
         }
     }
-
-}) {
-
-}
+})
