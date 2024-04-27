@@ -1,25 +1,18 @@
 package domain
 
+class Car private constructor(private val name: String, private val position: Int) {
 
-private const val DICISION_CRITERIA = 4
+    companion object {
+        fun from(name: String): Car {
+            if (name.length > 5) {
+                throw IllegalArgumentException()
+            }
 
-class Car(private val name: String, private var position: Int) {
-
-    constructor(name: String) : this(name, 0)
-
-    fun decide(decisionNumber: Int) {
-        if (decisionNumber >= DICISION_CRITERIA) {
-            position++
+            return Car(name, 0)
         }
     }
 
-    fun getName(): String {
-        return name
+    override fun toString(): String {
+        return "Car(name='$name', position=$position)"
     }
-
-    fun getPosition(): Int {
-        return position
-    }
-
-
 }
