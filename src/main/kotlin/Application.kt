@@ -1,37 +1,41 @@
-import domain.Car
-import io.IoModule
+import domain.Candidate
+import domain.CarMoveService
+import domain.RaceMetaData
+import io.IoService
+import io.RaceResults
 import io.UserInput
 
 class Application {
-    private val io = IoModule()
-
-    fun getCars(): List<Car> {
-        return try {
-            val names = io.getCarNames()
-
-            names.stream()
-                .map { Car.from(it) }
-                .toList()
-        } catch (e: IllegalArgumentException) {
-            io.showNameError()
-            getCars()
-        }
-    }
-
-    private fun getMoveCount(): Int {
-        return try {
-            return io.getMoveCount()
-        } catch (e: IllegalArgumentException) {
-            io.showCountError()
-            getMoveCount()
-        }
-    }
+    private val ioService = IoService()
+    private val carMoveService = CarMoveService()
 
     fun getUserInput(): UserInput {
-        val cars = getCars()
+        val cars = ioService.getCars()
 
-        val moveCount = getMoveCount()
+        val moveCount = ioService.getMoveCount()
 
         return UserInput.of(cars, moveCount)
+    }
+
+    fun race(metadata: RaceMetaData): RaceResults {
+        return repeatMove(metadata)
+    }
+
+    private fun repeatMove(metadata: RaceMetaData): RaceResults {
+        val raceResults = RaceResults.newInstance()
+
+        repeat(metadata.getMoveCount()) {
+            val movedCars = carMoveService.moveCars(metadata.getCars())
+            raceResults.writeHistory(movedCars)
+        }
+
+        return raceResults
+    }
+
+    fun showResult(raceResult: RaceResults) {
+        ioService.showResult(raceResult)
+
+        val winners = Candidate.findWinners(raceResult.mapTo())
+        ioService.showWinners(winners)
     }
 }
